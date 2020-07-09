@@ -44,6 +44,10 @@ func (c *Adb) StartServer() error {
 	return c.server.Start()
 }
 
+func (c *Adb) Connect(host string, port int) (string, error) {
+	return c.server.Connect(host, port)
+}
+
 func (c *Adb) Device(descriptor DeviceDescriptor) *Device {
 	return &Device{
 		server:         c.server,

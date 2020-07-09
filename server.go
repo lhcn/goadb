@@ -37,6 +37,7 @@ type ServerConfig struct {
 type server interface {
 	Start() error
 	Dial() (*wire.Conn, error)
+	Connect(host string, port int) (string, error)
 }
 
 func roundTripSingleResponse(s server, req string) ([]byte, error) {
@@ -112,6 +113,13 @@ func (s *realServer) Start() error {
 	output, err := s.config.fs.CmdCombinedOutput(s.config.PathToAdb, "-L", fmt.Sprintf("tcp:%s", s.address), "start-server")
 	outputStr := strings.TrimSpace(string(output))
 	return errors.WrapErrorf(err, errors.ServerNotAvailable, "error starting server: %s\noutput:\n%s", err, outputStr)
+}
+
+// Connect adb client to host and port.
+func (s *realServer) Connect(host string, port int) (string, error) {
+	output, err := s.config.fs.CmdCombinedOutput(s.config.PathToAdb, "connect", fmt.Sprintf("%s:%d", host, port))
+	outputStr := strings.TrimSpace(string(output))
+	return outputStr, errors.WrapErrorf(err, errors.ServerNotAvailable, "error connecting devices: %s\noutput:\n%s", err, outputStr)
 }
 
 // filesystem abstracts interactions with the local filesystem for testability.
